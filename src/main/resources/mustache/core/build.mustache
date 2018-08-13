@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+BD_BIN="${BASH_SOURCE-$0}"
+BD_BIN="$(dirname "${BD_BIN}")"
+BD_BIN="$(cd "${BD_BIN}"; pwd)"
+BD_DIR="${BD_BIN}"
+TG_DIR="$BD_DIR/target"
+#go in build dir
+cd $BD_DIR
+#build
+echo "Starting building"
+
+mvn clean package -DskipTests -U;
+
+if [ ! "$(ls -v  $TG_DIR)"  ] ; then
+  echo "Building error"
+  exit 1
+fi
+echo "Building finished"

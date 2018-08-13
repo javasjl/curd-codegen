@@ -1,0 +1,86 @@
+package {{packageName}};
+
+
+import com.alibaba.fastjson.JSON;
+{{#imports}}import {{.}};
+{{/imports}}
+
+
+public class {{clazzSimpleName}}{
+
+  public static {{clazzSimpleName}} newInst(){
+    return new {{clazzSimpleName}}();
+  }
+
+  {{^noresult}}
+  public static class {{clazzSimpleName}}Ret{
+
+     public static {{clazzSimpleName}}Ret newInst(){
+       return new {{clazzSimpleName}}Ret();
+     }
+
+     private List<{{clazzSimpleName}}> {{lclazz}}s;
+
+     private Long totalCount;
+
+     public {{clazzSimpleName}}Ret {{lclazz}}s(List<{{clazzSimpleName}}> {{lclazz}}s){
+      set{{clazzSimpleName}}s({{lclazz}}s);
+      return this;
+    }
+
+    public {{clazzSimpleName}}Ret totalCount(Long totalCount){
+      setTotalCount(totalCount);
+      return this;
+    }
+
+    public List<{{clazzSimpleName}}> get{{clazzSimpleName}}s() {
+      return {{lclazz}}s;
+    }
+
+    public void set{{clazzSimpleName}}s(List<{{clazzSimpleName}}> {{lclazz}}s) {
+      this.{{lclazz}}s = {{lclazz}}s;
+    }
+
+    public Long getTotalCount() {
+      return totalCount;
+    }
+
+    public void setTotalCount(Long totalCount) {
+      this.totalCount = totalCount;
+    }
+  }
+  {{/noresult}}
+
+{{#props}}
+  /** {{{comment}}} */
+  {{^isList}}
+    {{^isMap}}
+      {{^isSet}}
+  private {{{clazzName}}} {{propName}};
+      {{/isSet}}
+    {{/isMap}}
+  {{/isList}}
+
+  {{#isList}}
+  private {{{clazzName}}} {{propName}} = new ArrayList<>();;
+  {{/isList}}
+  {{#isMap}}
+  private {{{clazzName}}} {{propName}} = new HashMap<>();;
+  {{/isMap}}
+  {{#isSet}}
+  private {{{clazzName}}} {{propName}} = new HashSet<>();;
+  {{/isSet}}
+{{/props}}
+
+
+ {{#props}}
+  {{>model/sgetter}}
+ {{/props}}
+
+  @Override
+  public String toString(){
+    return JSON.toJSONString(this);
+  }
+
+
+}

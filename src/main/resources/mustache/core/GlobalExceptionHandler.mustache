@@ -1,0 +1,57 @@
+package {{controlPack}};
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import {{commonPack}}.RestResponse;
+import {{commonPack}}.CodeMsg;
+import {{commonPack}}.Exception2CodeMap;
+
+
+
+
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    private static final Logger LOGGER  = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private static final String  ERROR_CODE = "code";
+    private static final String  ERROR_MSG  = "msg";
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @ExceptionHandler(value = Throwable.class)
+    @ResponseBody
+    public RestResponse handler(HttpServletRequest req, Throwable throwable) throws Exception {
+        LOGGER.error(throwable.getMessage(), throwable);
+        LOGGER.error(req.getRequestURL().toString() + " encounter exception or error");
+        Object target = throwable;
+        CodeMsg code =  Exception2CodeMap.getCode(target);
+
+        RestResponse response = new RestResponse();
+
+        writeField(response, ERROR_CODE, code.code);
+        writeField(response, ERROR_MSG, code.msg);
+
+        return response;
+    }
+
+
+    private static void writeField(Object target,String field,Object value){
+        try {
+            FieldUtils.writeField(target,field, value,true);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+
+}

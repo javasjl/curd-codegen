@@ -1,0 +1,87 @@
+package {{pack}}.utils;
+
+public class RestConfig {
+  private String uri;
+
+  private String serviceName;
+
+  private String codeKey = "code";
+
+  private String msgKey  = "msg";
+
+  private Integer successCode = 0;
+
+  private String  resultKey = "result";
+
+
+  public RestConfig() {
+
+  }
+
+  public static RestConfig config() {
+    return new RestConfig();
+  }
+
+  public String getUri() {
+    return uri;
+  }
+
+
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public RestConfig serviceName(String serviceName) {
+    this.serviceName = serviceName;
+    return this;
+  }
+
+  public RestConfig uri(String uri) {
+    this.uri = uri;
+    return this;
+  }
+
+  public String getCodeKey() {
+    return codeKey;
+  }
+
+  public RestConfig codeKey(String codeKey) {
+    this.codeKey = codeKey;
+    return this;
+  }
+
+  public String getMsgKey() {
+    return msgKey;
+  }
+
+  public RestConfig msgKey(String msgKey) {
+    this.msgKey = msgKey;
+    return this;
+  }
+
+  public Integer getSuccessCode() {
+    return successCode;
+  }
+
+  public RestConfig successCode(Integer successCode) {
+    this.successCode = successCode;
+    return this;
+  }
+
+  public String getResultKey() {
+    return resultKey;
+  }
+
+  public void resultKey(String resultKey) {
+    this.resultKey = resultKey;
+  }
+
+  @Override
+  public String toString() {
+    return "RestConfig [uri=" + uri + ", serviceName=" + serviceName
+        + ", codeKey=" + codeKey + ", msgKey=" + msgKey + ", successCode=" + successCode + "]";
+  }
+
+
+
+}

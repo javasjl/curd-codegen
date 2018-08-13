@@ -1,0 +1,40 @@
+package {{pack}}.logbook;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
+
+import org.zalando.logbook.BaseHttpResponse;
+import org.zalando.logbook.ForwardingBaseHttpResponse;
+import org.zalando.logbook.HttpResponse;
+
+public class BodyReplacedHttpResponse implements ForwardingBaseHttpResponse, HttpResponse{
+
+
+    private final HttpResponse response;
+    private final String body;
+
+    public BodyReplacedHttpResponse(final HttpResponse response, final String body) {
+        this.response = response;
+        this.body = body;
+    }
+
+    @Override
+    public BaseHttpResponse delegate() {
+        return response;
+    }
+
+    @Override
+    public byte[] getBody() throws IOException {
+        return body.getBytes(UTF_8);
+    }
+
+    @Override
+    public String getBodyAsString() throws IOException {
+        return body;
+    }
+
+
+
+
+}

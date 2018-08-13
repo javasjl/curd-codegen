@@ -1,0 +1,43 @@
+package {{packageName}};
+
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Mapper;
+import {{rootPack}}.utils.Query;
+import java.util.List;
+
+{{#imports}}import {{.}};
+{{/imports}}
+
+@Mapper
+public interface {{mapper}}Mapper {
+
+  {{#models}}
+  public List<{{clazz}}> select{{clazz}}s(@Param("{{name}}"){{clazz}} {{field}});
+
+  public {{clazz}}       selectOne{{clazz}}(@Param("{{name}}"){{clazz}} {{field}});
+
+  public {{clazz}}       select{{clazz}}ById(Long id);
+
+  public List<{{clazz}}> selectPage{{clazz}}(@Param("{{name}}"){{clazz}} {{field}}, @Param("query")Query Query);
+
+  public Long selectPage{{clazz}}Cnt(@Param("{{name}}"){{clazz}} {{field}});
+
+  public Long  update{{clazz}}({{clazz}} {{field}});
+
+  public Long  batchInsert{{clazz}}(@Param("list")List<{{clazz}}> {{field}}s);
+
+  public Long  insert{{clazz}}(@Param("item"){{clazz}} {{field}});
+
+  public Long  delete{{clazz}}(Long id);
+
+  {{#hasIncr}}
+  public void  incr{{clazz}}({{clazz}} {{field}});
+  {{/hasIncr}}
+
+  {{#hasDecr}}
+  public void  decr{{clazz}}({{clazz}} {{field}});
+  {{/hasDecr}}
+
+  {{/models}}
+
+}

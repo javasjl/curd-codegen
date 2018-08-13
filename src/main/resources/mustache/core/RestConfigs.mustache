@@ -1,0 +1,64 @@
+package {{commonPack}};
+
+import java.util.EnumSet;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
+import {{pack}}.utils.RestConfig;
+
+public enum RestConfigs {
+  DEMO("demo",RestConfig.config().codeKey("code").msgKey("msg"));
+
+  public final String key;
+  public final RestConfig restConfig;
+
+  private RestConfigs(String key,RestConfig restConfig){
+    this.restConfig = restConfig;
+    this.key = key;
+  }
+
+
+  @Component
+  @EnableConfigurationProperties(RestConfigsProperties.class)
+  public static class RestConfigsInjector {
+
+    private final RestConfigsProperties restConfigsProperties;
+
+    public RestConfigsInjector(RestConfigsProperties restConfigsProperties) {
+      this.restConfigsProperties = restConfigsProperties;
+    }
+
+    @PostConstruct
+    private void initDomain() {
+      for (RestConfigs rt : EnumSet.allOf(RestConfigs.class)) {
+        String domain = restConfigsProperties.getUris().get(rt.key);
+        if (domain == null) {
+            domain = "";
+        }
+        rt.restConfig.uri(domain);
+      }
+
+    }
+  }
+
+  @ConfigurationProperties(prefix="spring.rest")
+  public static class RestConfigsProperties{
+
+    private final  Map<String, String> uris = Maps.newHashMap();
+
+    public Map<String, String> getUris() {
+      return uris;
+    }
+
+  }
+
+
+
+
+}

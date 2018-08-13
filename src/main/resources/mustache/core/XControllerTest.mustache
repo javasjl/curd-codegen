@@ -1,0 +1,81 @@
+package {{controlPack}};
+
+import java.util.Date;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import com.alibaba.fastjson.TypeReference;
+import static {{pack}}.utils.BeanHelper.*;
+import {{pack}}.utils.RestService;
+import {{pack}}.utils.RestConfig;
+{{#imports}}import {{.}};
+{{/imports}}
+
+
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=WebEnvironment.DEFINED_PORT)
+public class {{control}}ControllerTest {
+
+  private static RestConfig config = RestConfig.config().uri("http://localhost:9235");
+
+  private static final String prefix = "";
+
+  @Autowired
+  private RestService rest;
+
+  {{#modelMethods}}
+  @Test
+  public void testCreate{{c}}(){
+    {{c}} {{lc}} =  {{c}}.newInst();
+    setFieldProp({{lc}},{{c}}.class);
+    System.out.println(rest.config(config)
+        .path(prefix + "/create/{{lc}}")
+        .type(new TypeReference<{{c}}Ret>(){})
+        .paramsObj({{lc}})
+        .post());
+  }
+
+
+  @Test
+  public void testQuery{{c}}(){
+    System.out.println(rest.config(config)
+        .path(prefix + "/query/{{lc}}")
+        .type(new TypeReference<{{c}}Ret>(){})
+        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
+        .get());
+  }
+
+
+  @Test
+  public void testUpdate{{c}}(){
+    System.out.println(rest.config(config)
+        .path(prefix + "/update/{{lc}}")
+        .type(new TypeReference<String>(){})
+        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
+        .handle((code,msg) ->{
+           System.out.println(code + ":" + msg);
+        })
+        .post());
+  }
+
+
+  @Test
+  public void testDel{{c}}(){
+    System.out.println(rest.config(config)
+        .path(prefix + "/del/{{lc}}")
+        .type(new TypeReference<String>(){})
+        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
+        .handle((code,msg) ->{
+           System.out.println(code + ":" + msg);
+        })
+        .post());
+  }
+  {{/modelMethods}}
+
+}

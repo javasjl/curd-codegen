@@ -1,0 +1,22 @@
+{{#props}}
+  {{#jpname}}
+  @JSONField(name="{{jpname}}")
+  {{/jpname}}
+  {{#isList}}
+  private {{{cname}}} {{lpname}} = new ArrayList<>();
+  {{/isList}}
+  {{^isList}}
+  private {{{cname}}} {{lpname}};
+  {{/isList}}
+{{/props}}
+
+  {{#props}}
+  public {{{cname}}} get{{pname}}(){
+    return {{lpname}};
+  }
+
+  public void set{{pname}}({{{cname}}} {{lpname}}){
+    this.{{lpname}} = {{lpname}};
+  }
+
+  {{/props}}

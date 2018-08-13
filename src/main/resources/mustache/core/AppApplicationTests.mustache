@@ -1,0 +1,27 @@
+package {{rootPack}};
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import com.alibaba.fastjson.TypeReference;
+import {{pack}}.utils.RestService;
+import org.springframework.beans.factory.annotation.Autowired;
+import {{commonPack}}.RestConfigs;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class {{appName}}ApplicationTests {
+
+	@Autowired
+	private RestService rest;
+
+	@Test
+	public void contextLoads() {
+		   System.out.println(rest.config(RestConfigs.DEMO.restConfig)
+       .path("/list")
+       .type(new TypeReference<String>(){})
+			 .get());
+	}
+
+}

@@ -1,0 +1,53 @@
+package {{commonPack}};
+
+
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.springframework.validation.BindException;
+
+import com.google.common.collect.ImmutableMap;
+import {{pack}}.common.WithTypeException;
+import {{commonPack}}.CodeMsg;
+import {{commonPack}}.IllegalParamsException;
+
+
+public class Exception2CodeMap {
+    private static final ImmutableMap<Object, CodeMsg> MAP = ImmutableMap.<Object, CodeMsg>builder()
+            .put(IllegalParamsException.Type.INFO_PARAMS_ILLEGAL, CodeMsg.ILLEGAL_PARAMS)
+            .put(BindException.class, CodeMsg.ILLEGAL_PARAMS)
+            .build();
+
+
+
+    public static ImmutableMap<Object, CodeMsg>  getMap(){
+        return MAP;
+    }
+
+
+    public static CodeMsg getCode(Object exOrType){
+     Object target = exOrType;
+     if (target instanceof WithTypeException) {
+         Object type = getType(exOrType);
+         if (type != null) {
+             target = type;
+         }
+     }
+     CodeMsg code = MAP.get(target);
+     if (code == null) {
+        code = MAP.get(target.getClass());
+     }
+
+     if (code == null) {
+         return CodeMsg.UNKNOWN_ERROR;
+     }
+     return code;
+  }
+
+    private static Object getType(Object throwable){
+        try {
+            return FieldUtils.readDeclaredField(throwable, "type", true);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+}

@@ -1,0 +1,48 @@
+package {{pack}}.utils;
+
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+public class MultiValueMaps {
+
+  public static MultiValueMap<String, Object> of(String k1,Object v1){
+    MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+    map.add(k1, v1);
+    return map;
+  }
+
+  public static MultiValueMap<String, Object> of(String k1,Object v1,String k2,Object v2){
+    MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+    map.add(k1, v1);
+    map.add(k2, v2);
+    return map;
+  }
+
+  public static MultiValueMap<String, Object> of(String k1,Object v1,String k2,Object v2,String k3,Object v3){
+    MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+    map.add(k1, v1);
+    map.add(k2, v2);
+    map.add(k3, v3);
+    return map;
+  }
+
+  public static MultiValueMap<String, Object> of(String k1,Object v1,String k2,Object v2,String k3,Object v3,String k4,Object v4){
+    MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+    map.add(k1, v1);
+    map.add(k2, v2);
+    map.add(k3, v3);
+    map.add(k4, v4);
+    return map;
+  }
+
+  public static MultiValueMap<String, Object>  of(String k1,Object v1,String k2,Object v2,String k3,Object v3,String k4,Object v4,String k5,Object v5){
+    MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+    map.add(k1, v1);
+    map.add(k2, v2);
+    map.add(k3, v3);
+    map.add(k4, v4);
+    map.add(k5, v5);
+    return map;
+  }
+
+}

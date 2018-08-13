@@ -1,0 +1,50 @@
+package {{pack}}.logbook;
+
+import java.io.IOException;
+
+import org.zalando.logbook.HttpResponse;
+import org.zalando.logbook.ResponseFilter;
+
+public class CutOffBodyResponseFilter implements ResponseFilter{
+  
+  private static final Integer DEFAULT_CUT_OFF_ENGTH = 500;
+  
+  private Integer cutOffLength;
+  
+  public CutOffBodyResponseFilter() {
+    this.cutOffLength = DEFAULT_CUT_OFF_ENGTH;
+  }
+  
+  public CutOffBodyResponseFilter(Integer cutOffLength){
+    this.cutOffLength = cutOffLength;
+  }
+  
+
+  private static String getBody(HttpResponse response){
+    try {
+       return response.getBodyAsString();
+    } catch (IOException e) {
+       e.printStackTrace();
+       //fail safe
+    }
+    return null;
+  }
+
+
+  @Override
+  public HttpResponse filter(HttpResponse response) {
+    String body = getBody(response);
+    final String replacement = (body == null ? null : cutBody(body)) ;
+    return replacement == null ? response : new BodyReplacedHttpResponse(response, replacement);
+  };
+  
+
+  public String cutBody(String body){
+    if (body.length() < cutOffLength) {
+       return body;
+    }
+    body =  body.substring(0, Math.min(body.length(), cutOffLength));
+    body =  "< Logbook Part Body is: >\r\n" + body;
+    return body;
+  }
+}

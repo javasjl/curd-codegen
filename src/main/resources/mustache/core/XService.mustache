@@ -1,0 +1,52 @@
+package {{servicePack}}.{{lcontrol}};
+
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import {{rootPack}}.utils.Query;
+import {{rootPack}}.utils.BeanHelper;
+import {{mapperPack}}.{{m}}Mapper;
+import {{rootPack}}.bean.{{c}};
+
+
+@Service
+public class {{c}}Service {
+
+  @Autowired
+  private {{m}}Mapper {{lm}}Mapper;
+
+  public List<{{c}}> query{{c}}({{c}} {{lc}}, Query queryEty){
+    List<{{c}}> {{lc}}s =  {{lm}}Mapper.selectPage{{c}}({{lc}},queryEty);
+    return {{lc}}s;
+  }
+
+  public Long query{{c}}Count({{c}} {{lc}}) {
+   return  {{lm}}Mapper.selectPage{{c}}Cnt({{lc}});
+  }
+
+  @Transactional(rollbackFor=Exception.class)
+  public {{c}} update{{c}}({{c}} {{lc}}, Long id) {
+    BeanHelper.onUpdate({{lc}});
+    {{lm}}Mapper.update{{c}}({{lc}});
+    return {{lc}};
+  }
+
+  @Transactional(rollbackFor=Exception.class)
+  public {{c}} insert{{c}}({{c}} {{lc}}) {
+    BeanHelper.onInsert({{lc}});
+    {{lm}}Mapper.insert{{c}}({{lc}});
+    return {{lc}};
+  }
+
+  @Transactional(rollbackFor=Exception.class)
+  public {{c}} delete{{c}}({{c}} {{lc}},long id) {
+   {{lm}}Mapper.delete{{c}}(id);
+   return {{lc}};
+  }
+
+}

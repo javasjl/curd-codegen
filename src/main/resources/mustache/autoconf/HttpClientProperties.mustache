@@ -1,0 +1,50 @@
+package {{pack}}.autoconf;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix="spring.httpclient")
+public class HttpClientProperties {
+  
+  private static final Integer HTTPCLIENT_CONNECTTIMEOUT = 1000;
+  private static final Integer HTTPCLIENT_SOCKETTIMEOUT = 30000;
+  
+  private Integer connectTimeOut = HTTPCLIENT_CONNECTTIMEOUT;
+  private Integer socketTimeOut  = HTTPCLIENT_SOCKETTIMEOUT;
+  private String  agent = "agent";
+  private Integer maxConnPerRoute = 10;
+  private Integer maxConnTotal    = 50;
+  
+  public Integer getConnectTimeOut() {
+    return connectTimeOut;
+  }
+  public void setConnectTimeOut(Integer connectTimeOut) {
+    this.connectTimeOut = connectTimeOut;
+  }
+  public Integer getSocketTimeOut() {
+    return socketTimeOut;
+  }
+  public void setSocketTimeOut(Integer socketTimeOut) {
+    this.socketTimeOut = socketTimeOut;
+  }
+  public Integer getMaxConnPerRoute() {
+    return maxConnPerRoute;
+  }
+  public void setMaxConnPerRoute(Integer maxConnPerRoute) {
+    this.maxConnPerRoute = maxConnPerRoute;
+  }
+  public Integer getMaxConnTotal() {
+    return maxConnTotal;
+  }
+  public void setMaxConnTotal(Integer maxConnTotal) {
+    this.maxConnTotal = maxConnTotal;
+  }
+  public String getAgent() {
+    return agent;
+  }
+  public void setAgent(String agent) {
+    this.agent = agent;
+  }
+  
+  
+
+}

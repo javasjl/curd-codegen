@@ -1,0 +1,65 @@
+package {{pack}}.log;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.Marker;
+
+import {{pack}}.utils.Traces;
+
+import ch.qos.logback.classic.pattern.ClassicConverter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+
+public class MsgConverter extends ClassicConverter {
+
+  private static final String ENTRY_SEPARATE = "||";
+  private static final String KV_SEPARATE = "=";
+  public static final String DEFAULT_TAG_NAME = "";
+  public static final String TRACEID_NAME = "traceid";
+  public static final String MSG_NAME = "msg";
+
+
+  public String convert(ILoggingEvent event) {
+    Map<String, String> map  = getMarkerMap(event.getMarker());
+    StringBuilder sb = new StringBuilder();
+    sb.append(getTagName(event.getMarker()));
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+        sb.append(ENTRY_SEPARATE).append(entry.getKey()).append(KV_SEPARATE).append(entry.getValue());
+    }
+    String msg =  event.getFormattedMessage();
+    if (msg != null && msg.length() >0) {
+        sb.append(ENTRY_SEPARATE).append(MSG_NAME).append(KV_SEPARATE).append(msg);
+    }
+    return sb.toString();
+  }
+
+  private String getTagName(Marker marker) {
+    if (marker != null) {
+      if (isMapMarker(marker)) {
+        MapMarker mapMarker =  ((MapMarker) marker);
+        String name = mapMarker.getName();
+        if (name != null && !name.equals(MapMarker.MARKER_DEFAULT_NAME)) {
+          return name;
+        }
+      }
+    }
+    return DEFAULT_TAG_NAME;
+  }
+
+  private Map<String, String> getMarkerMap(Marker marker){
+    Map<String, String> map = new LinkedHashMap<>();
+    map.put(TRACEID_NAME, Traces.getTraceId());
+    if (isMapMarker(marker)) {
+        MapMarker mapMarker =  ((MapMarker) marker);
+        map.putAll(mapMarker.asMap());
+    }
+    return map;
+  }
+
+  private static boolean isMapMarker(Marker marker) {
+    return marker instanceof MapMarker;
+  }
+
+
+
+}

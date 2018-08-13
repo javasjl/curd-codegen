@@ -1,0 +1,60 @@
+package {{pack}}.logbook;
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import {{pack}}.utils.Traces;
+
+public class WebAppTraceFilter implements Filter{
+
+  private static final String HEADER_NAME = "trace-id";
+
+  private static final Logger logger = LoggerFactory.getLogger(WebAppTraceFilter.class);
+
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+  }
+
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
+
+    if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+       chain.doFilter(request, response);
+       return;
+    }
+
+    final HttpServletRequest req = (HttpServletRequest) request;
+    try {
+      String traceId = req.getHeader(HEADER_NAME) ==null ?  req.getParameter("_") : req.getHeader(HEADER_NAME);
+      if (traceId == null || traceId.trim().equals("")) {
+        traceId = Traces.genTraceId();
+      }
+      Traces.setTraceId(traceId);
+      chain.doFilter(request, response);
+    } catch (Exception e) {
+      logger.error(e.getMessage(),e);
+    }finally {
+      Traces.removeTraceId();
+    }
+  }
+
+  @Override
+  public void destroy() {
+
+  }
+
+
+}

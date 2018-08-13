@@ -1,0 +1,59 @@
+package {{pack}}.utils;
+
+import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.TypeReference;
+import com.google.common.base.Preconditions;
+import {{pack}}.utils.Rests;
+import {{pack}}.utils.Rests.RestBuilder;
+
+public class RestService {
+
+  private RestTemplate restTemplate;
+
+  public RestTemplate getRestTemplate() {
+    return restTemplate;
+  }
+
+  public void setRestTemplate(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
+
+  public  RestReq config(RestConfig config){
+    return new RestReq(config);
+  }
+
+
+  public  class RestReq{
+
+    private RestConfig restConfig;
+
+    private String url;
+
+
+    public  RestReq(RestConfig config) {
+      this.restConfig = config;
+    }
+
+    /** 返回的结果类型，需要事先配置url */
+    public <V> RestBuilder<V> type(TypeReference<V> resultType){
+      RestBuilder<V> restBuilder = Rests.init(restTemplate,resultType);
+      restBuilder.url(Preconditions.checkNotNull(url,"path must be set before set type"));
+      restBuilder.codeMsg(restConfig.getCodeKey(), restConfig.getMsgKey());
+      restBuilder.resultKey(restConfig.getResultKey());
+      restBuilder.successCode(restConfig.getSuccessCode());
+      return restBuilder;
+    }
+
+
+    /** 路径比如/user/info */
+    public RestReq  path(String path){
+      this.url = restConfig.getUri() + path;
+      return this;
+    }
+
+
+
+  }
+
+}

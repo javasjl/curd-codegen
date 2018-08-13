@@ -1,0 +1,52 @@
+package {{pack}}.logbook;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+
+import org.apache.commons.lang3.StringUtils;
+import org.zalando.logbook.FilteredHttpRequest;
+import org.zalando.logbook.HttpRequest;
+
+
+public class FormBodyConstructs {
+  
+  public static boolean isRemoteFormRequest(Object message){
+     if (!(message instanceof FilteredHttpRequest)) {
+       return false;
+     }
+     FilteredHttpRequest request = (FilteredHttpRequest)message;
+     HttpRequest httpRequest = request.delegate();
+     String method = request.getMethod();
+     Map<String, List<String>> headers = request.getHeaders();
+     boolean containsHeader = headers.entrySet().stream().filter(entry -> {
+       boolean hasHeader = entry.getKey().equalsIgnoreCase("Content-Type");
+       boolean isFormHeader = entry.getValue().stream().filter(v -> v.contains("application/x-www-form-urlencoded")).findAny().isPresent();
+       return hasHeader && isFormHeader;
+     }).findAny().isPresent();
+     if (httpRequest instanceof HttpServletRequest && method.equalsIgnoreCase("POST") && containsHeader) {
+        return true;
+     }
+     return false;
+  }
+
+  
+  public static String getFormBody(Object message){
+    FilteredHttpRequest filteredHttpRequest = (FilteredHttpRequest)message;
+    HttpServletRequestWrapper requestWrapper = (HttpServletRequestWrapper)(filteredHttpRequest.delegate());
+    ServletRequest request = requestWrapper.getRequest();
+    Map<String, String[]> map = request.getParameterMap();
+    StringBuilder body = new StringBuilder();
+    map.forEach((k,v) ->{
+      Stream.of(v).forEach(item -> body.append(k + "=" + item + "&"));
+    });
+    String end = StringUtils.removeEnd(body.toString(), "&"); 
+    return end;
+  }
+  
+
+}

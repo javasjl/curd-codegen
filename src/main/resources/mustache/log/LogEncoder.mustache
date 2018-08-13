@@ -1,0 +1,23 @@
+package {{pack}}.log;
+
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.pattern.PatternLayoutEncoderBase;
+
+public class LogEncoder extends PatternLayoutEncoderBase<ILoggingEvent>{
+
+  private static final String MSG_KEY = "tmsg";
+
+  @Override
+  public void start() {
+    PatternLayout patternLayout = new PatternLayout();
+    patternLayout.setContext(context);
+    patternLayout.setPattern(getPattern());
+    patternLayout.setOutputPatternAsHeader(outputPatternAsHeader);
+    patternLayout.getInstanceConverterMap().put(MSG_KEY, MsgConverter.class.getName());
+    patternLayout.start();
+    this.layout = patternLayout;
+    super.start();
+  }
+
+}

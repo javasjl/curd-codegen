@@ -1,0 +1,22 @@
+server.port=9234
+
+spring.druid.driverClassName=com.mysql.jdbc.Driver
+#MODIFY DATABASE NAME FIRST !
+spring.druid.url=jdbc:mysql://localhost:3306/your_db?autoReconnect=true&autoReconnectForPools=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+spring.druid.username=root
+spring.druid.password=123456
+spring.druid.maxActive=20
+spring.druid.minIdle=3
+spring.druid.maxWait=10000
+spring.druid.validationQuery=SELECT 'x'
+spring.druid.timeBetweenEvictionRunsMillis=60000
+spring.druid.minEvictableIdleTimeMillis=300000
+
+spring.rest.uris.demo=http://localhost:9234
+mybatis.config-location=classpath:/mybatis/mybatis-config.xml
+
+spring.httplog.filter.enabled=true
+spring.httplog.format=curl
+spring.httplog.write.level=info
+
+management.security.enabled=false

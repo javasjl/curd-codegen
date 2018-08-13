@@ -1,0 +1,381 @@
+package {{pack}}.utils;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import {{pack}}.common.DependencyException;
+import {{pack}}.common.DependencyException.Type;
+
+
+public final class Rests {
+
+  private static final Logger logger = LoggerFactory.getLogger(Rests.class);
+
+  private static final Integer NULL_RESULT_CODE = Integer.MAX_VALUE;
+
+  private static final Integer MAX_LOG_LENTH = 2000;
+
+  private Rests(){};
+
+  public static <V>  RestBuilder<V> init(RestTemplate restTemplate,TypeReference<V> resultType) {
+    return new RestBuilder<V>(restTemplate,resultType);
+  }
+
+  public static class RestBuilder<V>{
+
+    private  RestTemplate restTemplate;
+
+    private  BiConsumer<Integer, String> handler;
+
+    private  Function<String,V> responseHander;
+
+    private  Pair<String, String> codeMsgKeyName = ImmutablePair.of("code", "msg");
+
+    private String resultKey = "result";
+
+    private  boolean retry ;
+
+    private  boolean ignoreRsp;
+
+    private  Object  body;
+
+    private  TypeReference<V> typeReference;
+
+    private String url;
+
+    private HttpMethod httpMethod ;
+
+    private Integer successCode;
+
+    private  MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+
+    private String caller;
+
+    public RestBuilder(RestTemplate restTemplate,TypeReference<V> typeReference){
+      this.restTemplate = restTemplate;
+      this.typeReference = typeReference;
+    }
+
+    public V get(){
+      this.httpMethod = HttpMethod.GET;
+      return exc();
+    }
+
+    public RestBuilder<V> successCode(Integer successCode){
+      this.successCode = successCode;
+      return this;
+    }
+
+
+    public RestBuilder<V> url(String url){
+      this.url = url;
+      return this;
+    }
+
+
+    public  V post(){
+      this.httpMethod = HttpMethod.POST;
+      return exc();
+    }
+
+
+    public RestBuilder<V> codeMsg(String codeKey,String msgKey){
+      this.codeMsgKeyName = ImmutablePair.of(codeKey,msgKey);
+      return this;
+    }
+
+    public RestBuilder<V> params(MultiValueMap<String, Object> logInfo){
+      this.params.putAll(logInfo);
+      return this;
+    }
+
+    public RestBuilder<V> paramsObj(Object pojo){
+      this.params.putAll(asMap(pojo));
+      return this;
+    }
+
+    public RestBuilder<V> resultKey(String key){
+      this.resultKey = key;
+      return this;
+    }
+
+    /** 状态码处理器 */
+    public RestBuilder<V> handle(BiConsumer<Integer, String> handler){
+      this.handler = handler;
+      return this;
+    }
+
+
+    /** 状态码处理器 */
+    public RestBuilder<V> handleResponse(Function<String,V> responseHandler){
+      this.responseHander = responseHandler;
+      return this;
+    }
+
+    /** 默认false */
+    public RestBuilder<V> retry(){
+      this.retry = true;
+      return this;
+    }
+
+    /** 默认false */
+    public RestBuilder<V> ignoreRsp(){
+      this.ignoreRsp = true;
+      return this;
+    }
+
+    public RestBuilder<V> body(Object reqBody){
+      this.body = reqBody;
+      return this;
+    }
+
+    /** 默认empty */
+    public RestBuilder<V> caller(String caller){
+      this.caller = caller;
+      return this;
+    }
+
+
+    V exc(){
+      if (handler == null) {
+          handler = new DefaultHandler(successCode);
+       }
+      if (caller == null) {
+          caller = getCallerMethod();
+      }
+      return Rests.exc(this);
+    }
+
+  }
+
+
+  static <V> V exc(RestBuilder<V> restBuilder) {
+    V result = null;
+    try {
+      result =  innerExc(restBuilder);
+    }finally {
+      logger.info("Rest CALLER={} executed with PARAMS={} and RESULT={}",
+          restBuilder.caller,
+          restBuilder.params,
+          result == null ? "" : StringUtils.substring(result.toString(), 0, MAX_LOG_LENTH));
+    }
+    return result;
+  }
+
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static <V> V innerExc(RestBuilder<V> restBuilder) {
+    RestTemplate restTemplate = Preconditions.checkNotNull(restBuilder.restTemplate,"resttemplate must not null");
+
+    String url = processUrl(restBuilder);
+    Object body = restBuilder.body;
+    boolean retry = restBuilder.retry;
+    TypeReference<V> reference = Preconditions.checkNotNull(restBuilder.typeReference,"TypeReference must not null");
+    HttpMethod httpMethod = Preconditions.checkNotNull(restBuilder.httpMethod,"HttpMethod must not null");
+    ResponseEntity<String> result = sendReq(() -> {
+      return restTemplate.exchange(url, httpMethod,
+          httpMethod.equals(HttpMethod.GET) ? HttpEntity.EMPTY :(body != null? new HttpEntity(body): constructUrlEncodeHttpEntity(restBuilder.params)) ,
+          new ParameterizedTypeReference<String>() {});
+    }, retry);
+    if (restBuilder.ignoreRsp) {
+       return null;
+    }
+    if (restBuilder.responseHander != null) {
+       return restBuilder.responseHander.apply(result.getBody());
+    }
+    JSONObject json = JSON.parseObject(result.getBody());
+    Pair<Integer,String> pair = parse(json,restBuilder.codeMsgKeyName.getKey(),restBuilder.codeMsgKeyName.getValue());
+    restBuilder.handler.accept(pair.getKey(), pair.getValue());
+    JSONObject resultObj = json.getJSONObject(restBuilder.resultKey);
+    if (resultObj == null) {
+       return null;
+    }
+    V v = JSON.parseObject(resultObj.toJSONString(),reference);
+    return v;
+  }
+
+  private static <V> String processUrl(RestBuilder<V> restBuilder) {
+    String url  = Preconditions.checkNotNull(restBuilder.url,"url must not null");
+    if (!restBuilder.httpMethod.equals(HttpMethod.GET)){
+       return url;
+    }
+    MultiValueMap<String, Object> params = encodeParams(restBuilder.params);
+    if (!params.isEmpty() && !url.contains("=")) {
+      StringBuilder queryString = new StringBuilder();
+      params.forEach((k,v) ->{
+          v.forEach(val ->{
+            queryString.append(k + "=" + val + "&");
+          });
+      });
+      String suffix = StringUtils.removeEnd(queryString.toString(), "&");
+      url = url + "?" + suffix;
+    }
+    return url;
+  }
+
+  private static MultiValueMap<String, Object> encodeParams(MultiValueMap<String, Object> params) {
+    MultiValueMap<String, Object> pMap = params;
+    MultiValueMap<String, Object> paramsMap = new LinkedMultiValueMap<>();
+    pMap.forEach((k,v) -> {
+      v.forEach(value ->{
+        try {
+          if (value instanceof String) {
+//            paramsMap.add(k, URLEncoder.encode(value.toString(), "utf-8"));
+            paramsMap.add(k, value.toString());
+          }else if (value instanceof Date) {
+            paramsMap.add(k, ((Date)value).getTime());
+          }else {
+            paramsMap.add(k, value);
+          }
+        } catch (Exception e) {
+          throw new IllegalArgumentException(e);
+        }
+      });
+
+    });
+    return paramsMap;
+  }
+
+
+
+  private static HttpEntity<MultiValueMap<String, String>> constructUrlEncodeHttpEntity(MultiValueMap<String, Object> postParams){
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+    MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+    postParams.forEach((k,v) ->{
+      v.forEach(p ->{
+        map.add(k,p+"");
+      });
+    });
+
+    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+    return request;
+
+  }
+
+   static class DefaultHandler implements BiConsumer<Integer,String>{
+
+     private Integer successCode;
+
+     public DefaultHandler(Integer successCode) {
+      this.successCode = successCode;
+    }
+
+    @Override
+    public void accept(Integer code, String msg) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("Code={},Msg={}",code,msg);
+        }
+        if (Objects.equal(NULL_RESULT_CODE, code)) {
+          throw new DependencyException(Type.NULL_RESULT_ERROR, "Got NULL result ");
+        }
+        if (!Objects.equal(successCode, code)) {
+          throw new DependencyException(Type.DEPEND_ERROR_CODE_TYPE, "Got erroNo " + code + " when execute rest call with errorMsg " +msg);
+        }
+    }
+  }
+
+  static <T> Pair<Integer,String>   parse(JSONObject result,String codeKey,String msgKey) {
+    Integer code = NULL_RESULT_CODE;
+    String msg = "";
+    try {
+      code = result.getInteger(codeKey);
+      msg =  result.getString(msgKey);
+    } catch (Exception e) {
+      //ignore
+    }
+    return ImmutablePair.of(code, msg);
+  }
+
+
+  static <T> T sendReq(Callable<T> call, boolean retry) {
+    T result = null;
+    try {
+      if (retry) {
+        result = Retrys.retry(call);
+      } else {
+        result = call.call();
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage(),e);
+      throw new DependencyException(Type.DEPEND_REQUEST_TYPE, "Send rest request error ");
+    }
+    return result;
+  }
+
+
+  public static String getCallerMethod(){
+    StackTraceElement[] traceElements = Thread.currentThread().getStackTrace();
+    List<StackTraceElement> callers = Arrays.asList(traceElements);
+    String caller = "";
+    if (callers.size() >= 5 ) {
+       StackTraceElement traceElement = callers.get(4);
+       caller = traceElement == null? caller : traceElement.toString();
+    }
+    return caller;
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static MultiValueMap<String, Object> asMap(Object obj) {
+    MultiValueMap<String, Object> result = new LinkedMultiValueMap<>();
+    try {
+      BeanInfo info = Introspector.getBeanInfo(obj.getClass());
+      for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+        Method reader = pd.getReadMethod();
+        if (reader != null && !pd.getName().equalsIgnoreCase("Class")) {
+          Object value = reader.invoke(obj);
+          if (value == null) {
+             continue;
+          }
+          if (value instanceof List && !((List)value).isEmpty()) {
+            List<Object> list = (List) value;
+            if (isPrimitiveOrStringOrDate(list.get(0))) {
+              result.put(pd.getName(), list);
+            }
+          } else if (isPrimitiveOrStringOrDate(value)) {
+            result.add(pd.getName(), value);
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e);
+    }
+    return result;
+  }
+
+  public static boolean isPrimitiveOrStringOrDate(Object obj){
+    return ClassUtils.isPrimitiveOrWrapper(obj.getClass()) || (obj instanceof String) || obj instanceof Date;
+  }
+
+
+}

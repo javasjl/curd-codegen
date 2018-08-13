@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="{{mapperClazz}}">
+    {{#models}}
+
+    <sql id="{{clazz}}Field">
+     {{#props}}
+      a.{{tfield}} {{tfield}} {{^last}}, {{/last}}
+     {{/props}}
+    </sql>
+
+    <sql id="{{clazz}}Condition">
+      <where>
+        {{#props}}
+         {{^like}}
+           <if test="{{name}}.{{jfield}} != null {{#isString}} and {{name}}.{{jfield}} != '' {{/isString}} " >
+              AND {{tfield}} = #{ {{name}}.{{{jfield}}}}
+           </if>
+         {{/like}}
+         {{#inList}}
+          <if test="{{name}}.{{jfield}}s != null and {{name}}.{{jfield}}s.size() > 0 ">
+             AND {{tfield}} in
+               <foreach collection="{{name}}.{{jfield}}s" item="item" index="index" open="(" separator="," close=")" >
+                  #{item}
+               </foreach>
+          </if>
+         {{/inList}}
+         {{#like}}
+           <if test="{{name}}.{{jfield}} != null and {{name}}.{{jfield}} != '' ">
+               <bind name="pattern_{{jfield}}" value=" '%' + {{name}}.{{jfield}}" />
+               and {{tfield}}  like #{ pattern_{{{jfield}}}}
+           </if>
+         {{/like}}
+        {{/props}}
+      </where>
+    </sql>
+
+    {{#hasJoin}}
+    <sql id="{{clazz}}JoinCondition">
+
+        {{joinMethod}} ( select id from {{btable}}) b
+        on a.{{ajoinField}} = b.{{bjoinField}}
+
+        <include refid="{{clazz}}Condition"/>
+    </sql>
+    {{/hasJoin}}
+
+    {{#isFirst}}
+    <sql id="orderLimit">
+        <choose>
+          <when test="query.orderByMap != null and query.orderByMap.size() > 0 ">
+              ORDER BY
+              <foreach collection="query.orderByMap" index="column" item="ordering" separator=",">
+                    <if test="ordering != null and ordering == 'asc'">
+                          ${column} ASC
+                    </if>
+                     <if test="ordering != null and ordering == 'desc'">
+                          ${column} DESC
+                    </if>
+              </foreach>
+          </when>
+          <otherwise>
+               ORDER BY a.id DESC
+          </otherwise>
+        </choose>
+        <if test='query.offset != null and query.limit != null'>
+             LIMIT #{query.offset}, #{query.limit}
+        </if>
+        <if test='query.offset == null and query.limit != null'>
+             LIMIT #{query.limit}
+        </if>
+    </sql>
+    {{/isFirst}}
+
+    <select id="select{{clazz}}s" resultType="{{clazz}}">
+      SELECT <include refid="{{clazz}}Field"/>
+      FROM   {{table}} a
+      <include refid="{{clazz}}Condition"/>
+    </select>
+
+    <select id="selectOne{{clazz}}" resultType="{{clazz}}">
+      SELECT <include refid="{{clazz}}Field"/>
+      FROM   {{table}} a
+      <include refid="{{clazz}}Condition"/>
+      LIMIT 1
+    </select>
+
+    <select id="select{{clazz}}ById" resultType="{{clazz}}">
+      SELECT <include refid="{{clazz}}Field"/>
+      FROM   {{table}} a
+      WHERE  a.id = #{id}
+    </select>
+
+    <select id="selectPage{{clazz}}" resultType="{{clazz}}">
+      SELECT <include refid="{{clazz}}Field"/>
+      FROM   {{table}} a
+      {{^hasJoin}}
+        <include refid="{{clazz}}Condition"/>
+      {{/hasJoin}}
+      {{#hasJoin}}
+        <include refid="{{clazz}}JoinCondition"/>
+      {{/hasJoin}}
+        <include refid="orderLimit" />
+    </select>
+
+    <select id="selectPage{{clazz}}Cnt" resultType="long" >
+       SELECT count(a.id)
+       FROM   {{table}} a
+       {{^hasJoin}}
+         <include refid="{{clazz}}Condition"/>
+       {{/hasJoin}}
+       {{#hasJoin}}
+         <include refid="{{clazz}}JoinCondition"/>
+       {{/hasJoin}}
+    </select>
+
+    <update id="update{{clazz}}">
+      UPDATE  {{table}}
+      <set>
+        {{#props}}
+         {{#tfield}}
+                {{^isId}}
+              <if test="{{jfield}} != null {{#isString}} and {{jfield}} != '' {{/isString}} " >
+                {{tfield}} = #{ {{{jfield}}}},
+              </if>
+                {{/isId}}
+          {{/tfield}}
+        {{/props}}
+      </set>
+      WHERE  id = #{id}
+    </update>
+
+    <sql id="{{clazz}}Prefix" >
+       INSERT INTO {{table}}
+       (
+         {{#props}}
+             {{^isId}}
+           {{tfield}} {{^last}}, {{/last}}
+             {{/isId}}
+         {{/props}}
+       )VALUES
+
+    </sql>
+
+    <sql id="{{clazz}}Values">
+       (
+        {{#props}}
+          {{#tfield}}
+            {{^isId}}
+         #{item.{{jfield}}} {{^last}}, {{/last}}
+            {{/isId}}
+          {{/tfield}}
+        {{/props}}
+       )
+    </sql>
+
+   <insert id="batchInsert{{clazz}}" >
+     <include refid="{{clazz}}Prefix"/>
+      <foreach collection="list" item="item" index="index" separator=",">
+         <include refid="{{clazz}}Values" />
+      </foreach>
+   </insert>
+
+   <insert id="insert{{clazz}}" useGeneratedKeys="true" keyProperty="item.id" parameterType="{{clazz}}">
+   <include refid="{{clazz}}Prefix"/>
+   <include refid="{{clazz}}Values" />
+   </insert>
+
+
+   <delete id="delete{{clazz}}">
+      DELETE FROM {{table}}
+      WHERE id = #{id}
+   </delete>
+
+   {{#incrTfield}}
+   <update id="incr{{clazz}}">
+       UPDATE {{table}} SET {{incrTfield}} = {{incrTfield}} + 1 WHERE  id = #{id}
+   </update>
+   {{/incrTfield}}
+
+   {{#decrTfield}}
+   <update id="decr{{clazz}}">
+       UPDATE {{table}} SET {{decrTfield}} = {{decrTfield}} - 1 WHERE  id = #{id}
+   </update>
+   {{/decrTfield}}
+
+  {{/models}}
+
+</mapper>

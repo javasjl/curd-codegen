@@ -1,0 +1,32 @@
+package {{pack}};
+
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
+import java.util.List;
+import java.util.ArrayList;
+{{#imports}}import {{.}};
+{{/imports}}
+
+
+public class {{rootc}}{
+
+{{>json/clazzDefine}}
+
+  {{#clist}}
+
+  public static class {{innerc}}{
+
+{{>json/clazzDefine}}
+
+   }
+
+  {{/clist}}
+
+  @Override
+  public String toString(){
+    return JSON.toJSONString(this);
+  }
+
+
+}

@@ -1,0 +1,110 @@
+package {{pack}}.log;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.Marker;
+
+/**
+ *
+ */
+public class MapMarker extends MapBasicMarker {
+
+  public MapMarker(String name) {
+    super(name);
+  }
+
+  private static final long serialVersionUID = 6399647781212552870L;
+  
+  private LinkedHashMap<String, String> _map = new LinkedHashMap<>(); 
+  
+  public  static final String MARKER_DEFAULT_NAME = "MARKER"; 
+  
+
+  
+  public Map<String,String> asMap(){
+    return Collections.unmodifiableMap(_map);
+  }
+  
+  /**
+   * 构建具有自定义名的marker
+   * @param markerName
+   * @return
+   */
+  public static  MapMarker build(String markerName){
+    return name(markerName);
+  }
+  
+  /**
+   * 构建具有默认marker
+   * @param markerName
+   * @return
+   */
+  public static  MapMarker build(){
+    return name(MARKER_DEFAULT_NAME);
+  }
+  
+  
+  /**
+   * 构建有名字的marker
+   * @param markerName
+   * @return
+   */
+  public static  MapMarker name(String markerName){
+    return new MapMarker(markerName);
+  }
+  
+
+  /**
+   * 追加kv
+   * @param key
+   * @param value
+   * @return
+   */
+  public  MapMarker append(String key, String value) {
+    _map.put(key, value);
+    return this;
+  }
+  
+  /**
+   * 追加map
+   * @param map
+   * @return
+   */
+  public Marker append(Map<String, String> map){
+    _map.putAll(map);
+    return this;
+  }
+  
+  /**
+   * 在不存在情况下追加
+   * @param key
+   * @param value
+   * @return
+   */
+  public Marker appendIfAbsent(String key,String value){
+    if (!_map.containsKey(key)) {
+      append(key, value);
+    }
+    return this;
+  }
+
+  /**
+   * 在不存在情况下追加map
+   * @param map
+   * @return
+   */
+  public Marker appendIfAbsent(Map<String, String> map){
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      append(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return "MapMarker [_map=" + _map + "]";
+  }
+  
+}

@@ -1,0 +1,37 @@
+package {{pack}}.utils;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+import com.alibaba.ttl.TransmittableThreadLocal;
+
+public class Traces {
+  private static final TransmittableThreadLocal<String> holder = new TransmittableThreadLocal<>();
+
+
+  public static String getTraceId() {
+    String traceId = holder.get();
+    if (traceId == null) {
+      return "";
+    }
+    return traceId;
+  }
+
+  public static void setTraceId(String traceId) {
+   holder.set(traceId);
+  }
+
+  public static void removeTraceId() {
+    holder.remove();
+  }
+
+  public static String genTraceId(){
+    return Math.abs(ThreadLocalRandom.current().nextLong()) + "";
+  }
+
+  public static String getWithInsurance() {
+    if ("".equals(getTraceId())) {
+      holder.set(genTraceId());
+    }
+    return getTraceId();
+  }
+}

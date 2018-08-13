@@ -1,0 +1,99 @@
+package {{pack}}.utils;
+
+import java.util.Map;
+
+import com.google.common.collect.Maps;
+
+public class Query {
+
+  private Integer  offset;
+  private Integer  limit;
+  private Integer  pageSize;
+  private Integer  pageNum;
+  private Map<String, String> orderByMap = Maps.newLinkedHashMap();
+
+  public static Query buildLimit(Integer limit,Integer offset) {
+    Query limitOffset = new Query();
+    limitOffset.setLimit(limit);
+    limitOffset.setOffset(offset);
+    return limitOffset;
+  }
+
+  public static Query newInst(){
+    return new Query();
+  }
+
+  public Query pageSize(Integer pageSize){
+    setPageSize(pageSize);
+    return this;
+  }
+
+  public Query pageNum(Integer pageNum){
+    setPageNum(pageNum);
+    return this;
+  }
+
+  public Integer getOffset() {
+    if (offset != null) {
+      return offset;
+    }else if (pageSize != null && pageNum != null) {
+      setOffset((pageNum - 1) * pageSize );
+    }
+    return offset;
+  }
+
+  public void setOffset(Integer offset) {
+    this.offset = offset;
+  }
+
+  public Integer getLimit() {
+    if (limit != null) {
+      return limit;
+    }else if (pageSize != null && pageNum != null) {
+      setLimit(pageSize);
+    }
+    return limit;
+  }
+
+  public void setLimit(Integer limit) {
+    this.limit = limit;
+  }
+
+  public Integer getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(Integer pageSize) {
+    this.pageSize = pageSize;
+    if (pageSize <= 0) {
+      throw new IllegalArgumentException("pageSize must greater than zero");
+    }
+  }
+
+  public Integer getPageNum() {
+    return pageNum;
+  }
+
+  public void setPageNum(Integer pageNum) {
+    this.pageNum = pageNum;
+    if (pageNum <= 0) {
+      throw new IllegalArgumentException("PageNum must greater than zero");
+    }
+  }
+
+  public void setOrderByMap(Map<String, String> orderByMap) {
+    this.orderByMap = orderByMap;
+  }
+
+  public Map<String, String> getOrderByMap() {
+    return orderByMap;
+  }
+
+  @Override
+  public String toString() {
+    return "Query [offset=" + offset + ", limit=" + limit + ", orderByMap=" + orderByMap
+        + "]";
+  }
+
+
+}

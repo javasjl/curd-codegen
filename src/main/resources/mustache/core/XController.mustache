@@ -1,0 +1,49 @@
+package {{controlPack}};
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import {{commonPack}}.RestResponse;
+import {{rootPack}}.utils.Query;
+{{#imports}}import {{.}};
+{{/imports}}
+
+@RestController
+public class {{control}}Controller{
+
+  {{#modelMethods}}
+  @Autowired
+  private {{c}}Service {{lc}}Service;
+
+  @RequestMapping("query/{{lc}}")
+  public RestResponse<{{c}}Ret> query{{c}}({{c}} {{lc}},Query query){
+   List<{{c}}> {{lc}}s = {{lc}}Service.query{{c}}({{lc}}, query);
+   Long totalCnt = {{lc}}Service.query{{c}}Count({{lc}});
+   return RestResponse.success({{c}}Ret.newInst().{{lc}}s({{lc}}s).totalCount(totalCnt));
+  }
+
+  @RequestMapping("update/{{lc}}")
+  public RestResponse<{{c}}Ret> update{{c}}({{c}} {{lc}} ,Long id){
+   {{lc}}Service.update{{c}}({{lc}}, id);
+   return RestResponse.success();
+  }
+
+  @RequestMapping("create/{{lc}}")
+  public RestResponse<{{c}}Ret> create{{c}}({{c}} {{lc}}){
+   {{lc}}Service.insert{{c}}({{lc}});
+   return RestResponse.success();
+  }
+
+  @RequestMapping("del/{{lc}}")
+  public RestResponse<{{c}}Ret> del{{c}}({{c}} {{lc}},Long id){
+   {{lc}}Service.delete{{c}}({{lc}},id);
+   return RestResponse.success();
+  }
+  {{/modelMethods}}
+
+
+}
