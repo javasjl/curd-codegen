@@ -4,7 +4,7 @@ package com.justdebugit.codegen.srctransform;
  * 数据源访问者生成变量
  *
  * @param <T> 数据源
- * @param <V> 变量结果集
+ * @param <R> 变量结果集
  */
 public interface SrcTransformer<T,R> {
   
