@@ -1,0 +1,48 @@
+package {{pack}}.utils;
+
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+
+public class CommonQueryReq<T> {
+
+    private T t;
+
+    private Integer limit;
+
+    private Integer offset;
+
+    private Map<String, String> orderByMap = Maps.newLinkedHashMap();
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public T getT() {
+        return t;
+    }
+
+    public void setT(T t) {
+        this.t = t;
+    }
+
+    public Map<String, String> getOrderByMap() {
+        return orderByMap;
+    }
+
+    public void setOrderByMap(Map<String, String> orderByMap) {
+        this.orderByMap = orderByMap;
+    }
+}

@@ -172,6 +172,72 @@
       WHERE id = #{id}
    </delete>
 
+	<!-- -———————————————————————————————————— manage———————————————————————————————— -->
+
+    <sql id="{{clazz}}ConditionManage">
+      <where>
+        {{#props}}
+         {{^like}}
+           <if test="{{name}}.{{jfield}} != null {{#isString}} and {{name}}.{{jfield}} != '' {{/isString}} " >
+              AND {{tfield}} = #{ {{name}}.{{{jfield}}}}
+           </if>
+         {{/like}}
+         {{#inList}}
+          <if test="{{name}}.{{jfield}}s != null and {{name}}.{{jfield}}s.size() > 0 ">
+             AND {{tfield}} in
+               <foreach collection="{{name}}.{{jfield}}s" item="item" index="index" open="(" separator="," close=")" >
+                  #{item}
+               </foreach>
+          </if>
+         {{/inList}}
+         {{#like}}
+           <if test="{{name}}.{{jfield}} != null and {{name}}.{{jfield}} != '' ">
+               <bind name="pattern_{{jfield}}" value=" '%' + {{name}}.{{jfield}}" />
+               and {{tfield}}  like #{ pattern_{{{jfield}}}}
+           </if>
+         {{/like}}
+        {{/props}}
+      </where>
+    </sql>
+
+	<select id="queryListManage" resultType="{{clazz}}">
+		select <include refid="{{clazz}}Field"/>
+		from  {{table}} a
+        <include refid="{{clazz}}ConditionManage"/>
+
+		<if test="name != null and name.trim() != ''">
+			-- AND name LIKE concat('%',#{name},'%')
+		</if>
+
+		<choose>
+			<when test="sidx != null and sidx.trim() != ''">
+				order by ${sidx} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="queryTotalManage" resultType="int">
+		select count(*) from {{table}} a
+		 <include refid="{{clazz}}ConditionManage"/>
+		<if test="name != null and name.trim() != ''">
+			-- AND name LIKE concat('%',#{name},'%')
+		</if>
+	</select>
+
+	<delete id="deleteBatch">
+		delete from {{table}} where id in
+		<foreach item="id" collection="array" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
    {{#incrTfield}}
    <update id="incr{{clazz}}">
        UPDATE {{table}} SET {{incrTfield}} = {{incrTfield}} + 1 WHERE  id = #{id}

@@ -2,7 +2,7 @@ package {{commonPack}};
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import {{commonPack}}.CodeMsg;
+import {{commonPack}}.RestCode;
 
 @JsonInclude(Include.NON_NULL)
 public class RestResponse<T> {
@@ -21,12 +21,12 @@ public class RestResponse<T> {
     return response;
   }
 
-  public static <T> RestResponse<T> error(CodeMsg code) {
+  public static <T> RestResponse<T> error(RestCode code) {
     return new RestResponse<T>(code.code,code.msg);
   }
 
   public RestResponse(){
-    this(CodeMsg.OK.code, CodeMsg.OK.msg);
+    this(RestCode.OK.code, RestCode.OK.msg);
   }
 
   public RestResponse(int code,String msg){

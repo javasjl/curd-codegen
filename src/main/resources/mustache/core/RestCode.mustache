@@ -1,0 +1,23 @@
+package {{commonPack}};
+
+/**
+ *
+ */
+public enum RestCode {
+    OK(200,"OK"),
+    UNKNOWN_ERROR(1,"未知异常"),
+    ILLEGAL_PARAMS(10001,"参数不合法"),
+    NOT_FONT(404, "资源不存在"),
+    INNTER_SERRVER_ERR(500, "服务器异常"),
+    ADD_ERR(10001, "添加失败"),
+    UPDATE_ERR(10002, "修改失败"),
+    DEL_ERR(10003, "删除失败");
+
+    public final int code;
+    public final String msg;
+    private RestCode(int code,String msg){
+        this.code = code;
+        this.msg = msg;
+    }
+
+}

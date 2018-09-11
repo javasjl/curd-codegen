@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import {{commonPack}}.RestResponse;
-import {{commonPack}}.CodeMsg;
+import {{commonPack}}.RestCode;
 import {{commonPack}}.Exception2CodeMap;
 
 
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
         LOGGER.error(throwable.getMessage(), throwable);
         LOGGER.error(req.getRequestURL().toString() + " encounter exception or error");
         Object target = throwable;
-        CodeMsg code =  Exception2CodeMap.getCode(target);
+        RestCode code =  Exception2CodeMap.getCode(target);
 
         RestResponse response = new RestResponse();
 

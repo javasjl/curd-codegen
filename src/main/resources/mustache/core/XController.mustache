@@ -7,43 +7,86 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import {{rootPack}}.utils.CommonQueryReq;
 import {{commonPack}}.RestResponse;
 import {{rootPack}}.utils.Query;
+import java.util.Map;
+import {{rootPack}}.common.RestCode;
+import {{rootPack}}.common.RestResponse;
+
 {{#imports}}import {{.}};
 {{/imports}}
 
+{{#modelMethods}}
 @RestController
+@RequestMapping("{{lc}}")
 public class {{control}}Controller{
 
-  {{#modelMethods}}
   @Autowired
   private {{c}}Service {{lc}}Service;
 
-  @RequestMapping("query/{{lc}}")
-  public RestResponse<{{c}}Ret> query{{c}}({{c}} {{lc}},Query query){
-   List<{{c}}> {{lc}}s = {{lc}}Service.query{{c}}({{lc}}, query);
-   Long totalCnt = {{lc}}Service.query{{c}}Count({{lc}});
-   return RestResponse.success({{c}}Ret.newInst().{{lc}}s({{lc}}s).totalCount(totalCnt));
+  @RequestMapping("query")
+  public RestResponse<{{c}}Ret> query{{c}}(@RequestBody CommonQueryReq<{{c}}> req){
+    {{c}} {{lc}} = req.getT();
+    Integer limit = req.getLimit();
+    Integer offset = req.getOffset();
+    Query query = Query.buildLimit(limit, offset);
+    List<{{c}}> {{lc}}s = {{lc}}Service.query{{c}}({{lc}}, query);
+    Long totalCnt = {{lc}}Service.query{{c}}Count({{lc}});
+    return RestResponse.success({{c}}Ret.newInst().{{lc}}s({{lc}}s).totalCount(totalCnt));
   }
 
-  @RequestMapping("update/{{lc}}")
-  public RestResponse<{{c}}Ret> update{{c}}({{c}} {{lc}} ,Long id){
-   {{lc}}Service.update{{c}}({{lc}}, id);
-   return RestResponse.success();
+  @RequestMapping("update")
+  public RestResponse<{{c}}> update{{c}}(@RequestBody {{c}} {{lc}}){
+   return RestResponse.success({{lc}}Service.update{{c}}({{lc}}));
   }
 
-  @RequestMapping("create/{{lc}}")
-  public RestResponse<{{c}}Ret> create{{c}}({{c}} {{lc}}){
-   {{lc}}Service.insert{{c}}({{lc}});
-   return RestResponse.success();
+  @RequestMapping("create")
+  public RestResponse<{{c}}> create{{c}}(@RequestBody {{c}} {{lc}}){
+   return RestResponse.success({{lc}}Service.insert{{c}}({{lc}}));
   }
 
-  @RequestMapping("del/{{lc}}")
-  public RestResponse<{{c}}Ret> del{{c}}({{c}} {{lc}},Long id){
+  @RequestMapping("del")
+  public RestResponse<{{c}}> del{{c}}({{c}} {{lc}},Long id){
    {{lc}}Service.delete{{c}}({{lc}},id);
    return RestResponse.success();
   }
-  {{/modelMethods}}
 
+
+
+    //———————————————————————————————— manage ——————————————————————————————————
+    @RequestMapping("manage/queryList")
+    public RestResponse<List<{{c}}>> queryListManage(
+            @RequestBody Map<String, Object> map) {
+        return RestResponse.success({{lc}}Service.queryListManage(map));
+    }
+
+    @RequestMapping("manage/queryObject")
+    public RestResponse<{{c}}> queryObjectManage(Long id) {
+        return RestResponse.success({{lc}}Service.queryObjectManage(id));
+    }
+
+    @RequestMapping("manage/queryTotal")
+    public RestResponse<Integer> queryTotalManage(@RequestBody Map<String, Object> map) {
+        return RestResponse.success({{lc}}Service.queryTotalManage(map));
+    }
+
+    @RequestMapping("manage/save")
+    public RestResponse<?> saveManage(@RequestBody {{c}} {{lc}}) {
+        return {{lc}}Service.saveManage({{lc}});
+    }
+
+    @RequestMapping("manage/update")
+    public RestResponse<?> updateManage(@RequestBody {{c}} {{lc}}) {
+        return {{lc}}Service.updateManage({{lc}});
+    }
+
+    @RequestMapping("manage/deleteBatch")
+    public RestResponse<?> deleteBatch(@RequestBody Integer[] ids) {
+        return {{lc}}Service.deleteBatch(ids);
+    }
+
+  {{/modelMethods}}
 
 }

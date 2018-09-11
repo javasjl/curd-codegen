@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import {{rootPack}}.common.RestCode;
+import {{rootPack}}.common.RestResponse;
 import {{rootPack}}.utils.Query;
 import {{rootPack}}.utils.BeanHelper;
 import {{mapperPack}}.{{m}}Mapper;
@@ -30,7 +32,7 @@ public class {{c}}Service {
   }
 
   @Transactional(rollbackFor=Exception.class)
-  public {{c}} update{{c}}({{c}} {{lc}}, Long id) {
+  public {{c}} update{{c}}({{c}} {{lc}}) {
     BeanHelper.onUpdate({{lc}});
     {{lm}}Mapper.update{{c}}({{lc}});
     return {{lc}};
@@ -48,5 +50,50 @@ public class {{c}}Service {
    {{lm}}Mapper.delete{{c}}(id);
    return {{lc}};
   }
+
+
+    //———————————————— manage ——————————————————
+
+
+public List<{{c}}> queryListManage(Map<String, Object> map) {
+		return {{lm}}Mapper.queryListManage(map);
+	}
+
+	public {{c}} queryObjectManage(Long id) {
+		return {{lm}}Mapper.select{{c}}ById(id);
+	}
+
+	public Integer queryTotalManage(Map<String, Object> map) {
+		return {{lm}}Mapper.queryTotalManage(map);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public RestResponse<?> saveManage({{c}} {{lc}}) {
+		
+		 Long res =   {{lm}}Mapper.insert{{c}}({{lc}});
+		if(res<=0){
+			return RestResponse.error(RestCode.ADD_ERR);
+		}
+		return  RestResponse.success();
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public RestResponse<?> updateManage({{c}} {{lc}}) {
+		Long res =     {{lm}}Mapper.update{{c}}({{lc}});
+		if(res<=0){
+			return RestResponse.error(RestCode.UPDATE_ERR);
+		}
+		return  RestResponse.success();
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public  RestResponse<?>  deleteBatch(Integer[] ids) {
+		Integer res ={{lm}}Mapper.deleteBatch(ids);
+		if(res<=0){
+			return RestResponse.error(RestCode.DEL_ERR);
+		}
+		return  RestResponse.success();
+	}
+
 
 }

@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Mapper;
 import {{rootPack}}.utils.Query;
 import java.util.List;
+import java.util.Map;
 
 {{#imports}}import {{.}};
 {{/imports}}
@@ -29,6 +30,12 @@ public interface {{mapper}}Mapper {
   public Long  insert{{clazz}}(@Param("item"){{clazz}} {{field}});
 
   public Long  delete{{clazz}}(Long id);
+
+    int deleteBatch(Object[] ids);
+
+    List<{{clazz}}> queryListManage(Map<String, Object> map);
+
+    int queryTotalManage(Map<String, Object> map);
 
   {{#hasIncr}}
   public void  incr{{clazz}}({{clazz}} {{field}});

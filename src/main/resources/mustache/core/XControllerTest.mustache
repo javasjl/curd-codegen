@@ -47,7 +47,7 @@ public class {{control}}ControllerTest {
     System.out.println(rest.config(config)
         .path(prefix + "/query/{{lc}}")
         .type(new TypeReference<{{c}}Ret>(){})
-        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
+//        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
         .get());
   }
 
@@ -57,7 +57,7 @@ public class {{control}}ControllerTest {
     System.out.println(rest.config(config)
         .path(prefix + "/update/{{lc}}")
         .type(new TypeReference<String>(){})
-        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
+//        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
         .handle((code,msg) ->{
            System.out.println(code + ":" + msg);
         })
@@ -70,7 +70,7 @@ public class {{control}}ControllerTest {
     System.out.println(rest.config(config)
         .path(prefix + "/del/{{lc}}")
         .type(new TypeReference<String>(){})
-        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
+//        .paramsObj({{c}}.newInst().id(1{{^intId}}L{{/intId}}))
         .handle((code,msg) ->{
            System.out.println(code + ":" + msg);
         })

@@ -35,7 +35,17 @@ public class ProjectOut implements OuterConfig{
   public OtherVar application(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
   }
-  
+
+  @CodeGen(value="core/application-dev",path="application-dev.properties",type=OuterType.RESOURCE)
+  public OtherVar applicationDev(MybatisVar mybatisVar){
+    return mybatisVar.otherVar;
+  }
+
+  @CodeGen(value="core/application-prod",path="application-prod.properties",type=OuterType.RESOURCE)
+  public OtherVar applicationProd(MybatisVar mybatisVar){
+    return mybatisVar.otherVar;
+  }
+
   @CodeGen(value="core/logback",path="logback.xml",type=OuterType.RESOURCE)
   public OtherVar logback(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
@@ -66,8 +76,7 @@ public class ProjectOut implements OuterConfig{
     return mybatisVar.otherVar;
   }
   
-  
-  @CodeGen(value="core/CodeMsg",type=OuterType.JAVA)
+  @CodeGen(value="core/RestCode",type=OuterType.JAVA)
   public OtherVar codeMsg(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
   }
@@ -203,25 +212,27 @@ public class ProjectOut implements OuterConfig{
   public OtherVar webAppTraceFilter(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
   }
-  
-  
+
   @CodeGen(value="utils/BeanHelper",type=OuterType.JAVA)
   public OtherVar beanHelper(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
   }
   
-  
   @CodeGen(value="utils/MultiValueMaps",type=OuterType.JAVA)
   public OtherVar multiValueMaps(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
   }
-  
+
+  @CodeGen(value="utils/CommonQueryReq",type=OuterType.JAVA)
+  public OtherVar commonQueryReq(MybatisVar mybatisVar){
+    return mybatisVar.otherVar;
+  }
 
   @CodeGen(value="utils/Query",type=OuterType.JAVA)
   public OtherVar query(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
   }
-  
+
   @CodeGen(value="utils/RestConfig",type=OuterType.JAVA)
   public OtherVar restConfig(MybatisVar mybatisVar){
     return mybatisVar.otherVar;
