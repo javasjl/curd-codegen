@@ -37,6 +37,12 @@ public class {{control}}Controller{
     return RestResponse.success({{c}}Ret.newInst().{{lc}}s({{lc}}s).totalCount(totalCnt));
   }
 
+  @RequestMapping("query-one")
+  public RestResponse<{{c}}> queryOne(@RequestBody {{c}} {{lc}}){
+   {{lc}} = {{lc}}Service.queryOne({{lc}});
+    return RestResponse.success({{lc}});
+  }
+
   @RequestMapping("update")
   public RestResponse<{{c}}> update{{c}}(@RequestBody {{c}} {{lc}}){
    return RestResponse.success({{lc}}Service.update{{c}}({{lc}}));

@@ -31,6 +31,10 @@ public class {{c}}Service {
    return  {{lm}}Mapper.selectPage{{c}}Cnt({{lc}});
   }
 
+  public {{c}} queryOne({{c}} {{lc}}) {
+    return {{lm}}Mapper.selectOne{{c}}({{lc}});
+  }
+
   @Transactional(rollbackFor=Exception.class)
   public {{c}} update{{c}}({{c}} {{lc}}) {
     BeanHelper.onUpdate({{lc}});
@@ -55,7 +59,7 @@ public class {{c}}Service {
     //———————————————— manage ——————————————————
 
 
-public List<{{c}}> queryListManage(Map<String, Object> map) {
+    public List<{{c}}> queryListManage(Map<String, Object> map) {
 		return {{lm}}Mapper.queryListManage(map);
 	}
 
